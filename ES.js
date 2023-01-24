@@ -332,6 +332,7 @@ fetchp(process.env.CONFIG_URL_PREFIX.replace("/exactapi", "/opc-network"), {
         console.log("items to monitor----------")
         console.log(itemsToMonitor)
         console.log(the_subscription)
+        const obj=new map();
         the_subscription.monitorItems(
             itemsToMonitor,
             monitoringParamaters,
@@ -340,26 +341,14 @@ fetchp(process.env.CONFIG_URL_PREFIX.replace("/exactapi", "/opc-network"), {
                 console.log("error in monitoring items")
                 console.log(err)
               }
-              //1. change in values -> store into dictionary  / object or hashmap
-              //2. every 1 minute (set time interval) -> read that object and send to internet mqtt.publish
               mItems.on("changed", function (monitoredItem, dataValue, index){
                     console.log(" The value has changed : ",monitoredItem, dataValue);  
                     //let ts = +new Date(dataValue.sourceTimestamp.toString());
-                    const obj=new Map():
-                    obj.set(index,dataValue)
-                    const timeID = setInterval(publish, 60000,);
-                    function publish() {
-                    for (const x of obj.values()) {
-                        // code for mqtt publish
-                        }
-                  } 
-                    obj.forEach (function(dataValue) {
-                    
-                     })
                     let ts = +new Date();
                     let topic_line = process.env.CLIENT_ID + "/" + process.env.CONFIG_ID + "/"+process.env.TAG_PREFIX + tags[index].dataTagId
                     console.log(topic_line)
-
+                    obj.set(process.env.TAG_PREFIX,dataValue.value);
+                    publish(process.env.TAG_PREFIX);
                     if (status_count==0){
                       setStatus(process.env)
                     }
@@ -384,7 +373,6 @@ fetchp(process.env.CONFIG_URL_PREFIX.replace("/exactapi", "/opc-network"), {
         
         // If a data change is detected print the value
         // 
-       
 
         // multi subs
       
@@ -435,4 +423,18 @@ fetchp(process.env.CONFIG_URL_PREFIX.replace("/exactapi", "/opc-network"), {
       }
       client.disconnect(function(){});
   });
+  setInterval(publish, 60000);
+  function publish() {
+  for (const x of obj.values()) {
+        try{
+            let payload = JSON.stringify({"v": typeTransform(x), "t": ts})
+            MQclient.publish(topic_line, payload)
+            console.log(ts)
+            console.log("--------------------")
+            } catch(e){
+            console.log(e)
+            return
+            }
+         }
+    } 
 })
