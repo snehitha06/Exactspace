@@ -345,6 +345,17 @@ fetchp(process.env.CONFIG_URL_PREFIX.replace("/exactapi", "/opc-network"), {
               mItems.on("changed", function (monitoredItem, dataValue, index){
                     console.log(" The value has changed : ",monitoredItem, dataValue);  
                     //let ts = +new Date(dataValue.sourceTimestamp.toString());
+                    const obj=new Map():
+                    obj.set(index,dataValue)
+                    const timeID = setInterval(publish, 60000,);
+                    function publish() {
+                    for (const x of obj.values()) {
+                        // code for mqtt publish
+                        }
+                  } 
+                    obj.forEach (function(dataValue) {
+                    
+                     })
                     let ts = +new Date();
                     let topic_line = process.env.CLIENT_ID + "/" + process.env.CONFIG_ID + "/"+process.env.TAG_PREFIX + tags[index].dataTagId
                     console.log(topic_line)
@@ -373,6 +384,7 @@ fetchp(process.env.CONFIG_URL_PREFIX.replace("/exactapi", "/opc-network"), {
         
         // If a data change is detected print the value
         // 
+       
 
         // multi subs
       
